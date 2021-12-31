@@ -2,6 +2,7 @@
 
 namespace App\Entity\base;
 
+use DateTimeInterface;
 use Doctrine\ORM\Mapping\Column;
 
 trait TraitEntity
@@ -9,12 +10,12 @@ trait TraitEntity
     /**
      * @ORM\Column(type="datetime")
      */
-    private $date_save;
+    private ?DateTimeInterface $date_save = null;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $active;
+    private ?bool $active = true;
 
     
     public function getDateSave(): ?\DateTimeInterface
@@ -22,7 +23,7 @@ trait TraitEntity
         return $this->date_save;
     }
 
-    public function setDateSave(\DateTimeInterface $date_save): self
+    public function setDateSave(DateTimeInterface $date_save): self
     {
         $this->date_save = $date_save;
 

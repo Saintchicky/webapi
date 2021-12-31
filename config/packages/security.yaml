@@ -1,15 +1,33 @@
 security:
     enable_authenticator_manager: true
+    # quel type d'algo on va utiliser pour gestion des mots de passe et autres param secu
+    # doc a voir ds symfony authenticator_manager
+    encoders:
+        App\Entity\TUser: bcrypt
+    role_hierarchy:
+            ROLE_AUTHOR: ROLE_ADMIN
+            ROLE_ROOT: [ROLE_ADMIN]
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
         users_in_memory: { memory: null }
+        # username est la clé d'authenfication
+        users_provider:
+            entity: {class: App\Entity\TUser, property: username }
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        api_blog:
+            pattern:   ^/api/v1/secure
+            stateless: true
+            anonymous: false
+            provider: users_provider
+            guard:
+                authenticators:
+                    - lexik_jwt_authentication.jwt_token_authenticator
         main:
             lazy: true
             provider: users_in_memory
@@ -23,7 +41,8 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/api/v1, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/v1/secure, roles: ROLE_AUTHOR }
         # - { path: ^/profile, roles: ROLE_USER }
 
 when@test:

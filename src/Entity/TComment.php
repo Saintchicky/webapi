@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use App\Entity\TUser;
+use App\Entity\TArticle;
 use App\Entity\base\TraitEntity;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\TCommentRepository;
@@ -17,22 +19,22 @@ class TComment
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=3000)
      */
-    private $comment;
+    private ?string $comment = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=TUser::class, inversedBy="tComments")
      */
-    private $fk_user;
+    private ?TUser $fk_user =null;
 
     /**
      * @ORM\ManyToOne(targetEntity=TArticle::class, inversedBy="tComments")
      */
-    private $fk_article;
+    private ?TArticle $fk_article = null;
 
     public function getId(): ?int
     {

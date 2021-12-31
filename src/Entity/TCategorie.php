@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity(repositoryClass=TCategorieRepository::class)
+ * @ORM\Table(name="t_categorie")
  */
 class TCategorie
 {
@@ -19,22 +20,22 @@ class TCategorie
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $titre;
+    private ?string $titre = null;
 
     /**
      * @ORM\Column(type="string", length=1000, nullable=true)
      */
-    private $description;
+    private ?string $description = null;
 
     /**
      * @ORM\OneToMany(targetEntity=TArticle::class, mappedBy="pk_categories")
      */
-    private $tArticles;
+    private Collection $tArticles;
 
     public function __construct()
     {

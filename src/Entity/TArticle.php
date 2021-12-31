@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use App\Entity\TUser;
+use App\Entity\TCategorie;
 use App\Entity\base\TraitEntity;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\TArticleRepository;
@@ -10,6 +12,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity(repositoryClass=TArticleRepository::class)
+ * @ORM\Table(name="t_article")
  */
 class TArticle
 {
@@ -19,32 +22,32 @@ class TArticle
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $title;
+    private ?string $title = null;
 
     /**
      * @ORM\Column(type="string", length=3000)
      */
-    private $description;
+    private ?string $description = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=TUser::class, inversedBy="tArticles")
      */
-    private $fk_user;
+    private ?TUser $fk_user = null;
 
     /**
      * @ORM\OneToMany(targetEntity=TComment::class, mappedBy="fk_article")
      */
-    private $tComments;
+    private Collection $tComments;
 
     /**
      * @ORM\ManyToOne(targetEntity=TCategorie::class, inversedBy="tArticles")
      */
-    private $pk_categories;
+    private ?TCategorie $pk_categories = null;
 
 
     public function __construct()

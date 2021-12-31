@@ -2,16 +2,23 @@
 
 namespace App\Entity;
 
+use App\Entity\TPays;
+use DateTimeInterface;
 use App\Entity\base\TraitEntity;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\TUserRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 
 /**
  * @ORM\Entity(repositoryClass=TUserRepository::class)
+ * @UniqueEntity(fields="username",message="username already used")
+ * @ORM\Table(name="t_user")
  */
-class TUser
+class TUser implements UserInterface, \Serializable
 {
     use TraitEntity;
     /**
@@ -19,42 +26,52 @@ class TUser
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
+    // le username est unique
+    /**
+     * @ORM\Column(type="string", length=255, unique=true)
+     */
+    private ?string $username = null;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $username;
+    private ?string $firstname = null;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $firstname;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $lastname;
+    private ?string $lastname = null;
 
     /**
      * @ORM\Column(type="date", nullable=true)
      */
-    private $naissance;
+    private ?DateTimeInterface $naissance = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=TPays::class, inversedBy="tUsers")
      */
-    private $fk_pays;
+    private ?TPays $fk_pays = null;
 
     /**
      * @ORM\OneToMany(targetEntity=TArticle::class, mappedBy="fk_user")
      */
-    private $tArticles;
+    private Collection $tArticles;
 
     /**
      * @ORM\OneToMany(targetEntity=TComment::class, mappedBy="fk_user")
      */
-    private $tComments;
+    private Collection $tComments;
+
+    /**
+     * @ORM\Column(type="string", length=3000, nullable=true)
+     */
+    private ?string $password = null;
+
+    /**
+     * @ORM\Column(type="array")
+     */
+    private array $roles = [];
 
     public function __construct()
     {
@@ -103,12 +120,12 @@ class TUser
         return $this;
     }
 
-    public function getNaissance(): ?\DateTimeInterface
+    public function getNaissance(): ?DateTimeInterface
     {
         return $this->naissance;
     }
 
-    public function setNaissance(?\DateTimeInterface $naissance): self
+    public function setNaissance(?DateTimeInterface $naissance): self
     {
         $this->naissance = $naissance;
 
@@ -183,6 +200,48 @@ class TUser
                 $tComment->setFkUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(?string $password): self
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+    public function serialize()
+    {
+
+    }
+    public function unserialize($data)
+    {
+        
+    }
+    public function getSalt()
+    {
+        return null;
+    }
+    public function eraseCredentials()
+    {
+        return $this;
+    }
+    public function __call($name, $arguments)
+    {
+
+    }
+    public function getRoles(): array
+    {
+        return $this->roles;
+    }
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
 
         return $this;
     }

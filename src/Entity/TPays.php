@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity(repositoryClass=TPaysRepository::class)
+ * @ORM\Table(name="t_pays")
  */
 class TPays
 {
@@ -19,22 +20,22 @@ class TPays
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $nom;
+    private ?string $nom = null;
 
     /**
      * @ORM\Column(type="string", length=1000, nullable=true)
      */
-    private $description;
+    private ?string $description  = null;
 
     /**
      * @ORM\OneToMany(targetEntity=TUser::class, mappedBy="fk_pays")
      */
-    private $tUsers;
+    private Collection $tUsers;
 
     public function __construct()
     {
