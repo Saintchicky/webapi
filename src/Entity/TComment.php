@@ -10,6 +10,7 @@ use App\Repository\TCommentRepository;
 
 /**
  * @ORM\Entity(repositoryClass=TCommentRepository::class)
+ * @ORM\Table(name="t_comment")
  */
 class TComment
 {
