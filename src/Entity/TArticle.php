@@ -137,12 +137,12 @@ class TArticle
         return $this;
     }
 
-    public function getPkCategories(): ?TCategorie
+    public function getFkCategories(): ?TCategorie
     {
         return $this->fk_categories;
     }
 
-    public function setPkCategories(?TCategorie $fk_categories): self
+    public function setFkCategories(?TCategorie $fk_categories): self
     {
         $this->fk_categories = $fk_categories;
 
