@@ -47,9 +47,20 @@ class TArticle
     /**
      * @ORM\ManyToOne(targetEntity=TCategorie::class, inversedBy="tArticles")
      */
-    private ?TCategorie $pk_categories = null;
+    private ?TCategorie $fk_categories = null;
 
-
+    public function tojson(): array
+    {
+        return [
+            'date_save' => $this->date_save ? $this->date_save->format('c') : null,
+            'active' => $this->active,
+            'id' => $this->id,
+            'title' => $this->title,
+            'description' => $this->description,
+            'fk_user' => $this->fk_user ? $this->fk_user->tojson() : null,
+            'fk_categories' => $this->fk_categories ? $this->fk_categories->tojson() : null,
+        ];
+    }
     public function __construct()
     {
         $this->tComments = new ArrayCollection();
@@ -128,12 +139,12 @@ class TArticle
 
     public function getPkCategories(): ?TCategorie
     {
-        return $this->pk_categories;
+        return $this->fk_categories;
     }
 
-    public function setPkCategories(?TCategorie $pk_categories): self
+    public function setPkCategories(?TCategorie $fk_categories): self
     {
-        $this->pk_categories = $pk_categories;
+        $this->fk_categories = $fk_categories;
 
         return $this;
     }

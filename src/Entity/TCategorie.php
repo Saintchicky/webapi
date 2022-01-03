@@ -33,10 +33,20 @@ class TCategorie
     private ?string $description = null;
 
     /**
-     * @ORM\OneToMany(targetEntity=TArticle::class, mappedBy="pk_categories")
+     * @ORM\OneToMany(targetEntity=TArticle::class, mappedBy="fk_categories")
      */
     private Collection $tArticles;
 
+    public function tojson(): array
+    {
+        return [
+            'date_save' => $this->date_save ? $this->date_save->format('c') : null,
+            'active' => $this->active,
+            'id' => $this->id,
+            'titre' => $this->titre,
+            'description' => $this->description
+        ];
+    }
     public function __construct()
     {
         $this->tArticles = new ArrayCollection();

@@ -4,6 +4,7 @@ namespace App\Controller\Api\v1;
 
 use App\Entity\TUser;
 use App\Shared\Globals;
+use App\Shared\ErrorHttp;
 use App\Repository\TPaysRepository;
 use App\Repository\TUserRepository;
 use Symfony\Component\Routing\Annotation\Route;
@@ -34,15 +35,15 @@ class SecurityController extends AbstractController
         if(!isset(
             $data->username,
             $data->password
-        )) return new JsonResponse('form invalid',500);
+        )) return $this->globals->error('form invalid');
         $user = $this->userRepo->findOneBy(['username'=>$data->username]);
-        if(!$user) return new JsonResponse('username not found',500);
+        if(!$user) return $this->globals->error(ErrorHttp::USERNAME_NOT_FOUND);
         if(!$encoder->isPasswordValid($user, $data->password))
-            return new JsonResponse('password not valid',500);
-        return new JsonResponse([
-            'username' => $user->getUsername(),
-            'token' => $token->create($user)
-        ]);
+            return $this->globals->error(ErrorHttp::PASSWORD_INVALID);
+        return $this->globals->success([
+                'username' => $user->getUsername(),
+                'token' => $token->create($user)
+            ]);
     }
     /**
     * @Route("/register", name="register", methods = {"POST", "HAED"})
@@ -56,21 +57,30 @@ class SecurityController extends AbstractController
             $data->lastname,
             $data->password,
             $data->fk_pays
-        )) return new JsonResponse('error',500);
+        )) return $this->globals->error('error');
+
+        if($this->userRepo->findOneBy(['username'=>$data->username]) != null)
+            return $this->globals->error(ErrorHttp::USERNAME_EXIST);
+        if(strlen($data->password) < 4)
+            return $this->globals->error(ErrorHttp::PASSWORD_TOO_SHORT);
+
         // peut prendre plusieurs paramètre findOneBy
         $fk_pays = $this->paysRepo->findOneBy(['id'=>$data->fk_pays, 'active' => true]);
+        if (!$fk_pays)
+            return $this->globals->error(ErrorHttp::PAYS_NOT_FOUND);
         $user = (new TUser())
                 ->setActive(true)
                 ->setUsername($data->username)
                 ->setFirstname($data->firstname)
                 ->setLastname($data->lastname)
                 ->setFkPays($fk_pays)
+                ->setRoles(['ROLE_AUTHOR'])
                 ->setDateSave(new \DateTime());
 
         $user->setPassword($encoder->encodePassword($user,$data->password));
         $em = $this->getDoctrine()->getManager();
         $em->persist($user);
         $em->flush();
-        return new JsonResponse('register successful !');
+        return $this->globals->success($user->tojson());
     }
 }
