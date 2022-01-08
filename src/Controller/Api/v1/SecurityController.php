@@ -7,8 +7,10 @@ use App\Shared\Globals;
 use App\Shared\ErrorHttp;
 use App\Repository\TPaysRepository;
 use App\Repository\TUserRepository;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -82,5 +84,49 @@ class SecurityController extends AbstractController
         $em->persist($user);
         $em->flush();
         return $this->globals->success($user->tojson());
+    }
+    /**
+    * @Route("/token", name="")
+    * @Template("/security/token.html.twig")
+    */
+    public function token(Request $request)
+    {
+        $token = $request->query->get('token');
+        if (!$token)
+            return $this->globals->error(ErrorHttp::TOKEN_NOT_FOUND);
+
+        $user = $this->userRepo->findOneBy(['active' => true, 'password_token' => $token]);
+        if (!$user)
+            return $this->globals->error(ErrorHttp::USER_NOT_FOUND);
+
+        return [
+            'user' => $user
+        ];
+    }
+    /**
+     * @Route("/changepasswordbytoken", name="changepasswordbytoken")
+     */
+    public function changePasswordByToken(): JsonResponse
+    {
+        $data = $this->globals->jsondecode();
+        if (!isset($data->token, $data->password, $data->password_repeat))
+            return $this->globals->error(ErrorHttp::FORM_INVALID);
+
+        $user = $this->userRepo->findOneBy(['password_token' => $data->token, 'active' => true]);
+        if (!$user)
+            return $this->globals->error(ErrorHttp::USER_NOT_FOUND);
+
+        if ($data->password !== $data->password_repeat)
+            return $this->globals->error(ErrorHttp::PASSWORD_NOT_MATCH);
+        if (strlen($data->password) < 4)
+            return $this->globals->error(ErrorHttp::PASSWORD_TOO_SHORT);
+
+        $user->setPassword($this->globals->encoder()->encodePassword($user, $data->password))
+            ->setPasswordToChange(false)
+            ->setPasswordToken($data->token);
+
+        $this->getDoctrine()->getManager()->persist($user);
+        $this->getDoctrine()->getManager()->flush();
+        return $this->globals->success();
     }
 }

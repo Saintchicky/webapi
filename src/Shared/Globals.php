@@ -4,10 +4,17 @@ namespace App\Shared;
 
 use PHPUnit\Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 
 class Globals
 {
+    private ?UserPasswordEncoderInterface $encoder = null;
+    public function __construct(UserPasswordEncoderInterface $encoder)
+    {
+        $this->encoder = $encoder;
+    }
+
     public function jsondecode()
     {
         // "ext-json":"*" ajouter cette ligne ds le composer.json pour informer le projet qu'on utilise du json
@@ -16,6 +23,10 @@ class Globals
         }catch(Exception $e){
             return [];
         }
+    }
+    public function encoder(): UserPasswordEncoderInterface
+    {
+        return $this->encoder;
     }
     public function success(array $data = null, string $message = "success"):JsonResponse
     {

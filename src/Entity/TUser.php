@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use DateTime;
 use App\Entity\TPays;
 use DateTimeInterface;
 use App\Entity\base\TraitEntity;
@@ -73,6 +74,16 @@ class TUser implements UserInterface, \Serializable
      */
     private array $roles = [];
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private ?bool $password_to_change = null;
+
+    /**
+     * @ORM\Column(type="string", length=3000)
+     */
+    private ?string $password_token = null;
+
     public function tojson(): array
     {
         return [
@@ -84,11 +95,13 @@ class TUser implements UserInterface, \Serializable
             'lastname' => $this->lastname,
             'lastname' => $this->lastname,
             'naissance' => $this->naissance ? $this->naissance->format('c') : null,
-            'roles' => $this->roles
+            'roles' => $this->roles,
+            'password_to_change' => $this->password_to_change
         ];
     }
     public function __construct()
     {
+        $this->date_save = new DateTime();
         $this->tArticles = new ArrayCollection();
         $this->tComments = new ArrayCollection();
     }
@@ -256,6 +269,30 @@ class TUser implements UserInterface, \Serializable
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
+
+        return $this;
+    }
+
+    public function getPasswordToChange(): ?bool
+    {
+        return $this->password_to_change;
+    }
+
+    public function setPasswordToChange(bool $password_to_change): self
+    {
+        $this->password_to_change = $password_to_change;
+
+        return $this;
+    }
+
+    public function getPasswordToken(): ?string
+    {
+        return $this->password_token;
+    }
+
+    public function setPasswordToken(string $password_token): self
+    {
+        $this->password_token = $password_token;
 
         return $this;
     }

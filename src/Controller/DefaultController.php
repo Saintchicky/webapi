@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Shared\Globals;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -9,6 +10,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class DefaultController extends AbstractController
 {
     public Globals $globals;
+    
+    public function __construct(Globals $globals)
+    {
+        $this->globals = $globals;
+    }
 
     /**
      * @Route("/", name="home")
